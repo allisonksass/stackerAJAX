@@ -113,7 +113,7 @@ var getUnanswered = function(tags) {
 
 
 
-//====SHOWING TOP ANSWERERS FOR GET INSPIRED FEATURE
+//====SHOWING TOP ANSWERERS FOR GET INSPIRED FEATURE=====//
 
 // this function takes the top answerer returned by StackOverflow 
 // and creates new result to be appended to DOM
@@ -170,6 +170,7 @@ var getInspiration = function(tag) {
 
 	
 	.done(function(result){
+
 		//shows the number of results available and displays in .search-results div
 		 var searchResults = showSearchResults(request.tag, result.items.length);
 
