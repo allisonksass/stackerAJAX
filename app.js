@@ -6,7 +6,22 @@ $(document).ready( function() {
 		var tags = $(this).find("input[name='tags']").val();
 		getUnanswered(tags);
 	});
+
+
+	$('.inspiration-getter').submit( function(event){
+		// zero out results if previous search has run
+		$('.results').html('');
+		// get the value of the tags the user submitted
+		var answerers = $(this).find("input[name='answerers']").val();
+		getInspiration(answerers);
+		
+	});
+
+
 });
+
+
+//==========1===============SHOWING UNANSWERED QUESTIONS
 
 // this function takes the question object returned by StackOverflow 
 // and creates new result to be appended to DOM
@@ -42,6 +57,7 @@ var showQuestion = function(question) {
 };
 
 
+
 // this function takes the results object from StackOverflow
 // and creates info about search results to be appended to DOM
 var showSearchResults = function(query, resultNum) {
@@ -55,6 +71,8 @@ var showError = function(error){
 	var errorText = '<p>' + error + '</p>';
 	errorElem.append(errorText);
 };
+
+
 
 // takes a string of semi-colon separated tags to be searched
 // for on StackOverflow
@@ -72,6 +90,8 @@ var getUnanswered = function(tags) {
 		dataType: "jsonp",
 		type: "GET",
 		})
+
+
 	.done(function(result){
 		var searchResults = showSearchResults(request.tagged, result.items.length);
 
@@ -87,6 +107,105 @@ var getUnanswered = function(tags) {
 		$('.search-results').append(errorElem);
 	});
 };
+
+
+
+
+
+
+//====SHOWING TOP ANSWERERS FOR GET INSPIRED FEATURE
+
+// this function takes the top answerer returned by StackOverflow 
+// and creates new result to be appended to DOM
+
+var showAnswerer = function(answerers) {
+	
+	// clone our result template code
+	var result = $('.templates .user').clone();
+
+	// Set display name to show and link in result
+	var displayName= result.find('.name a');
+	displayName.attr('href', answerers.user.link);
+	displayName.text(answerers.user.display_name);
+
+	//set profile image
+	var image = result.find('.photo img' ); //display image
+	image.attr('src', answerers.user.profile_image);
+
+
+	// Set Reputation to show in result
+	var reputation= result.find('.reputation').text(answerers.user.reputation);
+
+	// Set Post Count to show in result
+	var postCount= result.find('.post-count').text(answerers.post_count);
+
+	// Set Reputation to show in result
+	var userScore= result.find('.score').text(answerers.score);
+
+	return result;
+
+	};
+
+
+
+// takes a string of semi-colon separated tags to be searched for on StackOverflow
+var getInspiration = function(tag) {
+	
+	// parameters needed to pass in request to StackOverflow's API
+	var request = {tag: tag,
+				   period: 'month',
+				   site: 'stackoverflow'
+				};
+	
+	
+	//Helpful reference for below: https://api.stackexchange.com/docs/top-answerers-on-tags							
+
+	var result = $.ajax({
+		url: "http://api.stackexchange.com/2.2/tags/" + request.tag + "/top-answerers/"+ request.period,
+		data: request,
+		dataType: "jsonp",
+		type: "GET",
+		})
+
+
+	
+	.done(function(result){
+		//shows the number of results available and displays in .search-results div
+		 var searchResults = showSearchResults(request.tag, result.items.length);
+
+		$('.search-results').html(searchResults);
+
+
+		//Appending top users to the .results div
+		$.each(result.items, function(i, item) {
+			
+			var topUsers = showAnswerer(item);
+			$('.results').append(topUsers);
+		});
+	})
+
+	.fail(function(jqXHR, error, errorThrown){
+		var errorElem = showError(error);
+		$('.search-results').append(errorElem);
+	});
+
+
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
